@@ -119,7 +119,7 @@ export default function SujeitoPassivoSection({ value, onChange, errors }: Props
                 {/* Documento de Identidade */}
                 <div className="md:col-span-6">
                     <label className="block font-semibold mb-1 text-sm text-gray-700">
-                        DOCUMENTO DE IDENTIDADE: <span className="text-red-500">*</span>
+                        DOCUMENTO DE IDENTIDADE:
                     </label>
                     <input
                         type="text"
@@ -129,7 +129,6 @@ export default function SujeitoPassivoSection({ value, onChange, errors }: Props
                         placeholder="Número do documento"
                         className={inputClasses(!!errors.documentoIdentidade)}
                     />
-                    {errors.documentoIdentidade && <p className="text-red-600 text-xs mt-1">{errors.documentoIdentidade}</p>}
                 </div>
 
                 {/* Endereço e Número */}

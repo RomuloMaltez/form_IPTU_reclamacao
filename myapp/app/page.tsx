@@ -60,7 +60,7 @@ const formSchema = z.object({
     nome: z.string().min(1, "O nome ou razão social é obrigatório."),
     // Exigimos no mínimo 14 para CPF (com máscara) e até 18 para CNPJ
     cpfCnpj: z.string().min(14, "Informe um CPF ou CNPJ válido."),
-    documentoIdentidade: z.string().min(1, "O documento de identidade é obrigatório."),
+    documentoIdentidade: z.string().optional(),
     endereco: z.string().min(1, "O endereço é obrigatório."),
     numero: z.string().min(1, "O número é obrigatório."),
     complemento: z.string().optional(),
