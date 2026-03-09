@@ -6,7 +6,6 @@ import SujeitoPassivoSection, { DadosSujeitoPassivo } from "@/components/Sujeito
 import DadosRequerenteSection, { DadosRequerente } from "@/components/DadosRequerenteSection";
 import DadosImovelSection, { DadosImovel } from "@/components/DadosImovelSection";
 import InformacoesImpugnacaoSection, { InformacoesImpugnacao } from "@/components/InformacoesImpugnacaoSection";
-import { ImpugnacaoPDF } from "@/components/ImpugnacaoPDF";
 
 // 1. Definição dos Erros
 export type FormErrors = {
@@ -198,64 +197,23 @@ export default function ImpugnacaoIptuPage() {
     });
 
     async function generatePdf() {
-        if (!pdfRef.current) return;
         setIsGeneratingPdf(true);
 
         try {
-            // Importa a biblioteca dinamicamente
-            const html2pdf = (await import("html2pdf.js")).default;
-            const element = pdfRef.current;
+            // Importação dinâmica do pdfmake e fontes virtuais
+            const pdfMake = (await import("pdfmake/build/pdfmake")).default;
+            const pdfFonts = (await import("pdfmake/build/vfs_fonts")).default;
+            pdfMake.vfs = pdfFonts.pdfMake ? pdfFonts.pdfMake.vfs : pdfFonts.vfs;
 
-            const opt = {
-                // Margens: Topo, Direita, Baixo, Esquerda (em mm)
-                margin: [35, 10, 30, 10] as [number, number, number, number],
-                filename: `impugnacao_iptu_${dadosSujeito.cpfCnpj.replace(/\D/g, '')}.pdf`,
-                image: { type: 'jpeg' as const, quality: 0.98 },
-                html2canvas: {
-                    scale: 2,
-                    useCORS: true,
-                    logging: true, // Ligar para debug, se necessário
-                    scrollY: 0,
-                    scrollX: 0,
-                    windowWidth: element.scrollWidth // Ajuda o canvas a entender a largura real
-                },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const },
-                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-            };
+            // Importa o template oficial!
+            const { createImpugnacaoDoc } = await import("@/utils/pdf/pdf-template-impugnacao");
 
-            const mesesExtenso = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-            const dataHoje = new Date();
-            const dataAtualExtenso = `${dataHoje.getDate()} de ${mesesExtenso[dataHoje.getMonth()]} de ${dataHoje.getFullYear()}`;
+            // Junta os dados da tela
+            const formData = { dadosSujeito, dadosRequerente, dadosImovel, dadosInfo };
 
-            // MICRO-DELAY VITAL: Dá tempo para o DOM do React renderizar a ref completamente
-            await new Promise((resolve) => setTimeout(resolve, 300));
-
-            // CADEIA DE EVENTOS CONTÍNUA: 
-            await (html2pdf()
-                .set(opt)
-                .from(element)
-                .toPdf()
-                .get('pdf')
-                .then((pdf: any) => {
-                    const totalPages = pdf.internal.getNumberOfPages();
-                    for (let i = 1; i <= totalPages; i++) {
-                        pdf.setPage(i);
-
-                        // Desenha o cabeçalho timbrado
-                        pdf.addImage('/semec-timbrado-cabecalho.png', 'PNG', 0, 0, 210, 30);
-
-                        // Desenha o rodapé timbrado 
-                        pdf.addImage('/semec-timbrado-rodape.png', 'PNG', 0, 297 - 15, 210, 15);
-
-                        // Desenha os textos do rodapé oficial
-                        pdf.setFontSize(8);
-                        pdf.setTextColor(100, 100, 100);
-                        pdf.text("Requerimento - Impugnação de Lançamento IPTU", 105, 275, { align: "center" });
-                        pdf.text(`Documento gerado eletronicamente em ${dataAtualExtenso}`, 105, 279, { align: "center" });
-                        pdf.text(`Página ${i} de ${totalPages}`, 105, 283, { align: "center" });
-                    }
-                }) as any)
-                .save();
+            // Monta o design definition e baixa
+            const docDefinition = createImpugnacaoDoc(formData);
+            pdfMake.createPdf(docDefinition).download(`impugnacao_iptu_${dadosSujeito.cpfCnpj.replace(/\D/g, '')}.pdf`);
 
         } catch (error) {
             console.error("Erro ao gerar PDF:", error);
@@ -335,7 +293,7 @@ export default function ImpugnacaoIptuPage() {
     const dataAtual = `${hoje.getDate()} de ${meses[hoje.getMonth()]} de ${hoje.getFullYear()}`;
 
     return (
-        <div className="container mx-auto px-4 py-8 max-w-4xl relative">
+        <div data-search-root className="container mx-auto px-4 py-8 max-w-4xl relative">
 
             {/* 4. OVERLAY DE CARREGAMENTO */}
             {isGeneratingPdf && (
@@ -345,15 +303,6 @@ export default function ImpugnacaoIptuPage() {
                     <p className="text-gray-200 text-lg drop-shadow-sm">Aguarde, o seu PDF será baixado automaticamente.</p>
                 </div>
             )}
-
-            {/* 5. COMPONENTE OCULTO DO PDF */}
-            <ImpugnacaoPDF
-                ref={pdfRef}
-                dadosSujeito={dadosSujeito}
-                dadosRequerente={dadosRequerente}
-                dadosImovel={dadosImovel}
-                dadosInfo={dadosInfo}
-            />
 
             <div className="bg-white rounded-lg shadow-lg p-6 md:p-10 border border-gray-200">
 
