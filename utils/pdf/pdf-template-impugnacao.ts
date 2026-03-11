@@ -9,8 +9,7 @@ function _makeHeaderInstitucional() {
             body: [[{
                 stack: [
                     { text: 'PREFEITURA MUNICIPAL DE PORTO VELHO', style: 'headerTitle' },
-                    { text: 'SECRETARIA MUNICIPAL DE FAZENDA', style: 'headerSubtitle' },
-                    { text: 'Subsecretaria da Receita Municipal', style: 'headerCaption' },
+                    { text: 'SECRETARIA MUNICIPAL DE ECONOMIA', style: 'headerSubtitle' },
                 ],
                 fillColor: PDF_COLORS.backgroundSection,
                 border: [false, false, false, true],
