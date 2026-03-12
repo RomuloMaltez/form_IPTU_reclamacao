@@ -147,9 +147,7 @@ const formSchema = z.object({
 export default function ImpugnacaoIptuPage() {
 
     const [errors, setErrors] = useState<FormErrors>({});
-
     const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
-    const pdfRef = useRef<HTMLDivElement>(null);
 
     // 3. Estado do Sujeito Passivo
     const [dadosSujeito, setDadosSujeito] = useState<DadosSujeitoPassivo>({
@@ -254,38 +252,27 @@ export default function ImpugnacaoIptuPage() {
             setErrors(firstErrors);
 
             // --- LÓGICA DE AUTO-SCROLL INTELIGENTE ---
-
-            // 1. Ordem exata em que os campos aparecem na tela (de cima para baixo)
             const ordemDosCampos: (keyof FormErrors)[] = [
-                // Sujeito Passivo e Requerente...
                 "nome", "cpfCnpj", "documentoIdentidade", "endereco", "numero", "complemento", "bairro", "cep", "cidadeUf", "whatsapp", "email", "telefone",
                 "tipoRequerente", "nomeRequerente", "cpfRequerente", "enderecoRequerente", "numeroRequerente", "complementoRequerente", "bairroRequerente", "cepRequerente", "cidadeUfRequerente", "whatsappRequerente", "emailRequerente",
-                // Imóvel
                 "inscricaoImobiliaria", "enderecoImovel", "numeroImovel", "complementoImovel", "bairroImovel", "cepImovel", "distritoImovel",
-                // Informações
                 "anoIPTU", "valorIPTUCobrado", "valorCorreto", "numerosProcessos", "utilizacaoImovel", "motivoErroIPTU", "motivacaoPedido"
             ];
 
-            // 2. Encontra o PRIMEIRO campo da lista acima que contém um erro
             const primeiroCampoComErro = ordemDosCampos.find(campo => firstErrors[campo]);
 
             if (primeiroCampoComErro) {
-                // 3. Procura o elemento HTML na tela pelo atributo 'name'
-                // O setTimeout com 0ms garante que o React tenha tempo de renderizar a mensagem vermelha antes de rolar
                 setTimeout(() => {
                     const elemento = document.querySelector(`[name="${primeiroCampoComErro}"]`) as HTMLElement;
 
                     if (elemento) {
-                        // Rola a tela centralizando o elemento e tenta focar nele
                         elemento.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         elemento.focus();
                     } else {
-                        // Fallback de segurança: se não achar o elemento, joga pro topo
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                     }
                 }, 0);
             }
-
             return;
         }
 
@@ -294,7 +281,6 @@ export default function ImpugnacaoIptuPage() {
         generatePdf();
     }
 
-    // Substitua const dataAtual = new Date().toLocaleDateString("pt-BR"); por:
     const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
     const hoje = new Date();
     const dataAtual = `${hoje.getDate()} de ${meses[hoje.getMonth()]} de ${hoje.getFullYear()}`;
@@ -302,7 +288,7 @@ export default function ImpugnacaoIptuPage() {
     return (
         <div data-search-root className="container mx-auto px-4 py-8 max-w-4xl relative">
 
-            {/* 4. OVERLAY DE CARREGAMENTO */}
+            {/* OVERLAY DE CARREGAMENTO */}
             {isGeneratingPdf && (
                 <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/70 backdrop-blur-sm transition-opacity">
                     <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-green-500 mb-6 shadow-lg"></div>
@@ -324,7 +310,7 @@ export default function ImpugnacaoIptuPage() {
                 </div>
 
                 {/* ALERTA DE ATENÇÃO */}
-                <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-md mb-8 shadow-sm">
+                <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-md mb-6 shadow-sm">
                     <div className="flex items-start">
                         <div className="flex-shrink-0">
                             <svg className="h-5 w-5 text-red-500 mt-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -338,6 +324,101 @@ export default function ImpugnacaoIptuPage() {
                             </div>
                         </div>
                     </div>
+                </div>
+
+                {/* === CAIXA DE INSTRUÇÕES E AVISOS (Fixo com acordeões internos) === */}
+                <div className="bg-gray-50 border border-gray-200 p-6 md:p-8 rounded-xl mt-12 shadow-sm">
+                    
+                    {/* Cabeçalho Fixo do Painel */}
+                    <div className="flex items-center gap-4 mb-6 pb-4 border-b border-gray-300">
+                        
+                        <h3 className="text-lg md:text-xl font-bold text-gray-900 uppercase tracking-tight">
+                            Atenção para o Preenchimento e Documentação
+                        </h3>
+                    </div>
+
+                    <div className="space-y-4 text-sm text-gray-800">
+                        
+                        {/* Bloco 1 */}
+                        <details className="group/item bg-white border border-gray-200 rounded-lg shadow-sm [&::-webkit-details-marker]:hidden">
+                            <summary className="flex cursor-pointer items-center justify-between p-4 text-pv-blue-900 font-bold focus:outline-none focus-visible:ring-2 focus-visible:ring-pv-blue-500 rounded-lg hover:bg-gray-50 transition">
+                                <span>COMO PREENCHER ELETRONICAMENTE O FORMULÁRIO</span>
+                                <span className="transition duration-300 group-open/item:-rotate-180 flex-shrink-0 ml-4 text-gray-400">
+                                    <svg fill="none" height="20" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="20">
+                                        <path d="M6 9l6 6 6-6"></path>
+                                    </svg>
+                                </span>
+                            </summary>
+                            <div className="p-4 pt-0 text-sm text-gray-800 border-t border-gray-100 mt-2">
+                                <ol className="list-decimal pl-5 space-y-2 text-gray-700 marker:text-gray-500 marker:font-bold mt-2">
+                                    <li>Se o campo da descrição da motivação do pedido for insuficiente, anexe uma petição em separada, em PDF, junto com o formulário preenchido;</li>
+                                    <li>Digite com letras MAIÚSCULAS;</li>
+                                    <li>O formulário deve estar assinado, preferencialmente com assinatura eletrônica. Utilize o serviço de assinatura eletrônica gratuitamente, pelo Gov.br, no link: <a href="https://www.gov.br/pt-br/servicos/assinatura-eletronica" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 transition">Assinatura Eletrônica Gratuita</a>.</li>
+                                </ol>
+                            </div>
+                        </details>
+
+                        {/* Bloco 2 */}
+                        <details className="group/item bg-white border border-gray-200 rounded-lg shadow-sm [&::-webkit-details-marker]:hidden">
+                            <summary className="flex cursor-pointer items-center justify-between p-4 text-pv-blue-900 font-bold focus:outline-none focus-visible:ring-2 focus-visible:ring-pv-blue-500 rounded-lg hover:bg-gray-50 transition">
+                                <span>COMO ENVIAR O FORMULÁRIO E DEMAIS DOCUMENTOS</span>
+                                <span className="transition duration-300 group-open/item:-rotate-180 flex-shrink-0 ml-4 text-gray-400">
+                                    <svg fill="none" height="20" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="20">
+                                        <path d="M6 9l6 6 6-6"></path>
+                                    </svg>
+                                </span>
+                            </summary>
+                            <div className="p-4 pt-0 text-sm text-gray-800 border-t border-gray-100 mt-2">
+                                <ol start={4} className="list-decimal pl-5 space-y-2 text-gray-700 marker:text-gray-500 marker:font-bold mt-2">
+                                    <li>O formulário, assim como toda a documentação, deve estar em PDF legível;</li>
+                                    <li>Cada documento deverá ser um arquivo de PDF. Ex.: RG/CPF um PDF; Certidão de Inteiro Teor um PDF;</li>
+                                </ol>
+                            </div>
+                        </details>
+
+                        {/* Bloco 3 */}
+                        <details className="group/item bg-white border border-gray-200 rounded-lg shadow-sm [&::-webkit-details-marker]:hidden">
+                            <summary className="flex cursor-pointer items-center justify-between p-4 text-pv-blue-900 font-bold focus:outline-none focus-visible:ring-2 focus-visible:ring-pv-blue-500 rounded-lg hover:bg-gray-50 transition">
+                                <span>DOCUMENTOS MÍNIMOS OBRIGATÓRIOS DAS PESSOAS</span>
+                                <span className="transition duration-300 group-open/item:-rotate-180 flex-shrink-0 ml-4 text-gray-400">
+                                    <svg fill="none" height="20" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="20">
+                                        <path d="M6 9l6 6 6-6"></path>
+                                    </svg>
+                                </span>
+                            </summary>
+                            <div className="p-4 pt-0 text-sm text-gray-800 border-t border-gray-100 mt-2">
+                                <ol start={6} className="list-decimal pl-5 space-y-2 text-gray-700 marker:text-gray-500 marker:font-bold mt-2">
+                                    <li>Documento de identificação oficial, em que conste o número do CPF;</li>
+                                    <li>Comprovante de residência;</li>
+                                    <li>Para representante legal/procurador, procuração com poderes de representação perante à Administração Pública para a prática do ato;</li>
+                                    <li>Para compromissário, contrato de compra/venda do imóvel (comprou o imóvel, mas não registrou no cartório);</li>
+                                    <li>Se o requerente for o cônjuge e não constar no Cadastro Imobiliário, anexar Inteiro Teor ou Certidão de Casamento;</li>
+                                    <li>Para pessoa jurídica, contrato social e suas alterações, ou ato consolidado, Estatuto ou Ata de Constituição, com devido registro no órgão competente;</li>
+                                </ol>
+                            </div>
+                        </details>
+
+                        {/* Bloco 4 */}
+                        <details className="group/item bg-white border border-gray-200 rounded-lg shadow-sm [&::-webkit-details-marker]:hidden">
+                            <summary className="flex cursor-pointer items-center justify-between p-4 text-pv-blue-900 font-bold focus:outline-none focus-visible:ring-2 focus-visible:ring-pv-blue-500 rounded-lg hover:bg-gray-50 transition">
+                                <span>DOCUMENTOS MÍNIMOS OBRIGATÓRIOS DO IMÓVEL</span>
+                                <span className="transition duration-300 group-open/item:-rotate-180 flex-shrink-0 ml-4 text-gray-400">
+                                    <svg fill="none" height="20" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="20">
+                                        <path d="M6 9l6 6 6-6"></path>
+                                    </svg>
+                                </span>
+                            </summary>
+                            <div className="p-4 pt-0 text-sm text-gray-800 border-t border-gray-100 mt-2">
+                                <ol start={12} className="list-decimal pl-5 space-y-2 text-gray-700 marker:text-gray-500 marker:font-bold mt-2">
+                                    <li>No caso de divergência de área do terreno ou de propriedade, apresentar a Inteiro Teor atualizada do imóvel;</li>
+                                    <li>No caso de divergência de dados coletados em vistoria ou em processo de obras, deve incluir os documentos que comprovem o alegado;</li>
+                                    <li>No caso de divergência de área construída, padrão construtivo ou do tipo de construção e demais características do imóvel, apresentar croqui ou planta e fotos do imóvel com data;</li>
+                                </ol>
+                            </div>
+                        </details>
+                    </div>
+
+                    
                 </div>
 
                 <div className="border-t border-gray-300 my-8" />
@@ -405,6 +486,30 @@ export default function ImpugnacaoIptuPage() {
                         </div>
                     </div>
 
+                    {/* CAIXA AMARELA DE ALERTA FINAL */}
+                    <div className="bg-yellow-50 border-l-4 border-yellow-500 p-5 mt-8 rounded-r-md shadow-sm">
+                        <h4 className="font-bold text-yellow-800 text-lg mb-1">ATENÇÃO</h4>
+                        <h4 className="font-bold text-yellow-800 mb-4 uppercase tracking-wide">Para protocolizar a impugnação</h4>
+
+                        <div className="space-y-3 text-sm text-yellow-900">
+                            <p>Recolha a custa processual <a href="https://gpi-trb.portovelho.ro.gov.br/ServerExec/acessoBase/?idPortal=dbde30ec-cf59-4803-9653-00121a704021" target="_blank" rel="noopener noreferrer" className="font-bold underline hover:text-yellow-700">Tarifa Abertura Processo</a> junte o comprovante de pagamento ao formulário, em PDF.</p>
+                            <p>Processo Eletrônico e-PMPV, envie a documentação em PDF para: <a href="mailto:dtr.serm.impugnacoes@portovelho.ro.gov.br" className="font-bold underline hover:text-yellow-700">dtr.serm.impugnacoes@portovelho.ro.gov.br</a></p>
+                            <p>Acompanhamento do Processo Eletrônico e-PMPV, <a href="https://epmpv.portovelho.ro.gov.br/?a=consultaETCDF&f=formPrincipal" target="_blank" rel="noopener noreferrer" className="font-bold underline hover:text-yellow-700">Clique Aqui acompanhar e-Proc</a>.</p>
+
+                            <hr className="border-yellow-300 my-4" />
+
+                            <p>É obrigação do contribuinte informar alterações no imóvel dentro de 60 dias (Art. 227 da LC 878/21).</p>
+                            <p>As alterações serão consideradas para cálculo do tributo imobiliário somente para o ano subsequente em diante (Art. 184 da LC 878/21). <a href="https://sapl.portovelho.ro.leg.br/norma/14805?display" target="_blank" rel="noopener noreferrer" className="font-bold underline hover:text-yellow-700">Clique Aqui e acesse a LC 878/21</a>.</p>
+
+                            <hr className="border-yellow-300 my-4" />
+
+                            <p className="font-bold text-red-800 bg-red-100 p-3 rounded border border-red-200">
+                                Importante gerar o DAM AVULSO e pagar o valor que considera correto para evitar a incidência de juros e correção monetária. Escolha o menu "EMISSÃO DE TAXAS WEB" e depois "impugnação parcial lanc. IPTU".
+                            </p>
+                            <p>Se a insatisfação do valor do tributo cobrado é por motivo de desatualização cadastral, formalize o processo de Atualização Cadastral em vez de impugnação. <a href="https://form-padrao.vercel.app/" target="_blank" rel="noopener noreferrer" className="font-bold underline hover:text-yellow-700">Clique Aqui e acesse o requerimento específico</a>.</p>
+                        </div>
+                    </div>
+
                     {/* BOTÃO DE GERAR PDF */}
                     <div className="text-center mt-8 mb-12">
                         <button
@@ -415,82 +520,7 @@ export default function ImpugnacaoIptuPage() {
                         >
                             {isGeneratingPdf ? "PROCESSANDO..." : "GERAR PDF"}
                         </button>
-                    </div>
-
-                    {/* === CAIXA DE INSTRUÇÕES E AVISOS (Fora do formulário) === */}
-                    <div className="bg-gray-50 border border-gray-200 p-6 md:p-8 rounded-lg mt-12 text-sm text-gray-800 shadow-sm">
-                        <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-6 border-b border-gray-300 pb-3">
-                            ATENÇÃO PARA O PREENCHIMENTO E DOCUMENTAÇÃO NECESSÁRIA
-                        </h3>
-
-                        <div className="space-y-6">
-                            {/* Bloco 1 */}
-                            <div>
-                                <h4 className="font-bold text-pv-blue-900 mb-2">COMO PREENCHER ELETRONICAMENTE O FORMULÁRIO:</h4>
-                                <ol className="list-decimal pl-5 space-y-2 text-gray-700 marker:text-gray-500 marker:font-bold">
-                                    <li>Se o campo da descrição da motivação do pedido for insuficiente, anexe uma petição em separada, em PDF, junto com o formulário preenchido;</li>
-                                    <li>Digite com letras MAIÚSCULAS;</li>
-                                    <li>O formulário deve estar assinado, preferencialmente com assinatura eletrônica. Utilize o serviço de assinatura eletrônica gratuitamente, pelo Gov.br, no link: <a href="https://www.gov.br/pt-br/servicos/assinatura-eletronica" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 transition">Assinatura Eletrônica Gratuita</a>.</li>
-                                </ol>
-                            </div>
-
-                            {/* Bloco 2 */}
-                            <div>
-                                <h4 className="font-bold text-pv-blue-900 mb-2">COMO ENVIAR O FORMULÁRIO E DEMAIS DOCUMENTOS:</h4>
-                                <ol start={4} className="list-decimal pl-5 space-y-2 text-gray-700 marker:text-gray-500 marker:font-bold">
-                                    <li>O formulário, assim como toda a documentação, deve estar em PDF legível;</li>
-                                    <li>Cada documento deverá ser um arquivo de PDF. Ex.: RG/CPF um PDF; Certidão de Inteiro Teor um PDF;</li>
-                                </ol>
-                            </div>
-
-                            {/* Bloco 3 */}
-                            <div>
-                                <h4 className="font-bold text-pv-blue-900 mb-2">DOCUMENTOS MÍNIMOS OBRIGATÓRIOS DAS PESSOAS:</h4>
-                                <ol start={6} className="list-decimal pl-5 space-y-2 text-gray-700 marker:text-gray-500 marker:font-bold">
-                                    <li>Documento de identificação oficial, em que conste o número do CPF;</li>
-                                    <li>Comprovante de residência;</li>
-                                    <li>Para representante legal/procurador, procuração com poderes de representação perante à Administração Pública para a prática do ato;</li>
-                                    <li>Para compromissário, contrato de compra/venda do imóvel (comprou o imóvel, mas não registrou no cartório);</li>
-                                    <li>Se o requerente for o cônjuge e não constar no Cadastro Imobiliário, anexar Inteiro Teor ou Certidão de Casamento;</li>
-                                    <li>Para pessoa jurídica, contrato social e suas alterações, ou ato consolidado, Estatuto ou Ata de Constituição, com devido registro no órgão competente;</li>
-                                </ol>
-                            </div>
-
-                            {/* Bloco 4 */}
-                            <div>
-                                <h4 className="font-bold text-pv-blue-900 mb-2">DOCUMENTOS MÍNIMOS OBRIGATÓRIOS DO IMÓVEL:</h4>
-                                <ol start={12} className="list-decimal pl-5 space-y-2 text-gray-700 marker:text-gray-500 marker:font-bold">
-                                    <li>No caso de divergência de área do terreno ou de propriedade, apresentar a Inteiro Teor atualizada do imóvel;</li>
-                                    <li>No caso de divergência de dados coletados em vistoria ou em processo de obras, deve incluir os documentos que comprovem o alegado;</li>
-                                    <li>No caso de divergência de área construída, padrão construtivo ou do tipo de construção e demais características do imóvel, apresentar croqui ou planta e fotos do imóvel com data;</li>
-                                </ol>
-                            </div>
-                        </div>
-
-                        {/* CAIXA AMARELA DE ALERTA FINAL */}
-                        <div className="bg-yellow-50 border-l-4 border-yellow-500 p-5 mt-8 rounded-r-md shadow-sm">
-                            <h4 className="font-bold text-yellow-800 text-lg mb-1">ATENÇÃO</h4>
-                            <h4 className="font-bold text-yellow-800 mb-4 uppercase tracking-wide">Para protocolizar a impugnação</h4>
-
-                            <div className="space-y-3 text-sm text-yellow-900">
-                                <p>Recolha a custa processual <a href="https://gpi-trb.portovelho.ro.gov.br/ServerExec/acessoBase/?idPortal=dbde30ec-cf59-4803-9653-00121a704021" target="_blank" rel="noopener noreferrer" className="font-bold underline hover:text-yellow-700">Tarifa Abertura Processo</a> junte o comprovante de pagamento ao formulário, em PDF.</p>
-                                <p>Processo Eletrônico e-PMPV, envie a documentação em PDF para: <a href="mailto:dtr.serm.impugnacoes@portovelho.ro.gov.br" className="font-bold underline hover:text-yellow-700">dtr.serm.impugnacoes@portovelho.ro.gov.br</a></p>
-                                <p>Acompanhamento do Processo Eletrônico e-PMPV, <a href="https://epmpv.portovelho.ro.gov.br/?a=consultaETCDF&f=formPrincipal" target="_blank" rel="noopener noreferrer" className="font-bold underline hover:text-yellow-700">Clique Aqui acompanhar e-Proc</a>.</p>
-
-                                <hr className="border-yellow-300 my-4" />
-
-                                <p>É obrigação do contribuinte informar alterações no imóvel dentro de 60 dias (Art. 227 da LC 878/21).</p>
-                                <p>As alterações serão consideradas para cálculo do tributo imobiliário somente para o ano subsequente em diante (Art. 184 da LC 878/21). <a href="https://sapl.portovelho.ro.leg.br/norma/14805?display" target="_blank" rel="noopener noreferrer" className="font-bold underline hover:text-yellow-700">Clique Aqui e acesse a LC 878/21</a>.</p>
-
-                                <hr className="border-yellow-300 my-4" />
-
-                                <p className="font-bold text-red-800 bg-red-100 p-3 rounded border border-red-200">
-                                    Importante gerar o DAM AVULSO e pagar o valor que considera correto para evitar a incidência de juros e correção monetária. Escolha o menu "taxas web" e depois "impugnação parcial lanc. IPTU".
-                                </p>
-                                <p>Se a insatisfação do valor do tributo cobrado é por motivo de desatualização cadastral, formalize o processo de Atualização Cadastral em vez de impugnação. <a href="https://form-padrao.vercel.app/" target="_blank" rel="noopener noreferrer" className="font-bold underline hover:text-yellow-700">Clique Aqui e acesse o requerimento específico</a>.</p>
-                            </div>
-                        </div>
-                    </div>
+                    </div>  
 
                 </form>
             </div>
