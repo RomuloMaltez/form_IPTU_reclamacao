@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+    assetPrefix: "/semec/form-iptu-reclamacao",
+    images: {
+        unoptimized: true,
+    },
 };
 
 export default nextConfig;
