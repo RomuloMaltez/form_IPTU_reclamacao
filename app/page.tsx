@@ -71,7 +71,7 @@ const formSchema = z.object({
     telefone: z.string().optional(),
 
     tipoRequerente: z.enum(["proprioContribuinte", "procurador", "compromissario"], {
-        errorMap: () => ({ message: "Selecione o tipo de requerente." })
+        error: "Selecione o tipo de requerente." 
     }),
     nomeRequerente: z.string().optional(),
     cpfRequerente: z.string().optional(),
@@ -200,9 +200,14 @@ export default function ImpugnacaoIptuPage() {
         setIsGeneratingPdf(true);
 
         try {
-            // Importação dinâmica do pdfmake e fontes virtuais
-            const pdfMake = (await import("pdfmake/build/pdfmake")).default;
-            const pdfFonts = (await import("pdfmake/build/vfs_fonts")).default;
+            // 1. Importações dinâmicas forçadas como 'any' para evitar erro do VFS
+            const pdfMakeModule = await import("pdfmake/build/pdfmake") as any;
+            const pdfFontsModule = await import("pdfmake/build/vfs_fonts") as any;
+
+            // Garantindo que ele pegue o construtor certo independente do empacotador
+            const pdfMake = pdfMakeModule.default || pdfMakeModule;
+            const pdfFonts = pdfFontsModule.default || pdfFontsModule;
+
             pdfMake.vfs = pdfFonts.pdfMake ? pdfFonts.pdfMake.vfs : pdfFonts.vfs;
 
             // Importa o template oficial!
@@ -211,8 +216,10 @@ export default function ImpugnacaoIptuPage() {
             // Junta os dados da tela
             const formData = { dadosSujeito, dadosRequerente, dadosImovel, dadosInfo };
 
-            // Monta o design definition e baixa
-            const docDefinition = createImpugnacaoDoc(formData);
+            // 2. Força a tipagem 'any' na saída para o TS não reclamar das margens e tabelas
+            const docDefinition: any = createImpugnacaoDoc(formData);
+
+            // Gera e baixa o PDF
             pdfMake.createPdf(docDefinition).download(`impugnacao_iptu_${dadosSujeito.cpfCnpj.replace(/\D/g, '')}.pdf`);
 
         } catch (error) {
