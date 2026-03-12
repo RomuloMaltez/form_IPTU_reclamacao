@@ -71,7 +71,7 @@ const formSchema = z.object({
     telefone: z.string().optional(),
 
     tipoRequerente: z.enum(["proprioContribuinte", "procurador", "compromissario"], {
-        errorMap: () => ({ message: "Selecione o tipo de requerente." })
+        error: "Selecione o tipo de requerente." 
     }),
     nomeRequerente: z.string().optional(),
     cpfRequerente: z.string().optional(),
