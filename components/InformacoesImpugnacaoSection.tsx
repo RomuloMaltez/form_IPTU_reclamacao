@@ -133,7 +133,7 @@ export default function InformacoesImpugnacaoSection({ value, onChange, errors }
                 {/* Botão Externo do DAM */}
                 <div className="md:col-span-12 bg-blue-50 border border-blue-200 p-4 rounded-md flex flex-col sm:flex-row items-center justify-between">
                     <p className="text-sm font-semibold text-blue-900 mb-3 sm:mb-0">
-                        CLIQUE AQUI E GERE O DAM (BOLETO) ONLINE NA OPÇÃO "TAXAS WEB"
+                        CLIQUE AQUI E GERE O DAM (BOLETO) ONLINE NA OPÇÃO "EMISSÃO DE TAXAS WEB"
                     </p>
                     <a 
                         href="https://gpi-trb.portovelho.ro.gov.br/ServerExec/acessoBase/?idPortal=dbde30ec-cf59-4803-9653-00121a704021" 
