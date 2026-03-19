@@ -301,12 +301,15 @@ export default function ImpugnacaoIptuPage() {
 
                 {/* CABEÇALHO */}
                 <div className="text-center mb-8">
-                    <h1 className="text-gray-800 font-bold text-2xl md:text-3xl mb-1 tracking-tight">
-                        REQUERIMENTO
-                    </h1>
-                    <h2 className="text-pv-green-600 font-bold text-xl md:text-2xl">
+                    <h4 className="text-pv-green-600 font-bold text-xl md:text-2xl mb-2">
                         IMPUGNAÇÃO DE LANÇAMENTO IPTU
+                    </h4>
+                    <h2 className="text-gray-700 font-medium text-lg mb-1">
+                        Requerimento
                     </h2>
+                    <p className="text-gray-500 text-sm">
+                        Prefeitura Municipal de Porto Velho - Secretaria Municipal de Economia (SEMEC)
+                    </p>
                 </div>
 
                 {/* ALERTA DE ATENÇÃO */}
